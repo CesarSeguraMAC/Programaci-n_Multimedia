@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="Imagenes/agenda_imagen.png" type="image/png">
+    <title>Lista de Tareas</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .capa {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1c1c1d;
+            opacity: 0.5;
+            mix-blend-mode: overlay;
+            z-index: -2;
+        }
+
+        table {
+            margin: 100px auto 0;
+            border-collapse: collapse;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 6px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+            transition: background-color 0.3s;
+        }
+
+        th {
+            background-color: #444;
+            color: white;
+        }
+
+        td {
+            background-color: #00047e;
+            color: white;
+        }
+
+        tr:hover td {
+            background-color: #555;
+        }
+
+        .delete-button, .update-button {
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .update-button {
+            background-color: #317f43;
+        }
+
+        .delete-button {
+            position: relative;
+            background-color: #ff6666;
+            left: 20px;
+        }
+
+        .update-button:hover {
+            background-color: #2b6a38;
+        }
+
+        .delete-button:hover {
+            background-color: #e63c3c;
+        }
+
+        #te {
+            text-align: center;
+            color: #000;
+            margin-top: 20px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: #00047e;
+            margin: 10% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 30%;
+            color: white;
+        }
+
+        .close {
+            color: white;
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1 id="te">Lista de Productos</h1>
+    <table id="tareasTable">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Consideraciones</th>
+                <th>Fecha de entrega</th>
+                <th>Fragilidad</th>
+                <th>Categoría</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Los datos de los productos se insertarán aquí -->
+        </tbody>
+    </table>
+
+    <!-- Modal para actualizar producto -->
+    <div id="updateModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Editar Producto</h2>
+            <form id="updateForm">
+                <input type="hidden" id="updateId">
+                <label for="updateNombre">Nombre:</label>
+                <input type="text" id="updateNombre" name="nombre" required><br><br>
+                <label for="updateConsi">Consideraciones:</label>
+                <textarea id="updateConsi" name="consi" required></textarea><br><br>
+                <label for="updateFecha">Fecha de entrega:</label>
+                <input type="date" id="updateFecha" name="fecha" required><br><br>
+                <label for="updateFragi">Fragilidad:</label>
+                <input type="text" id="updateFragi" name="fragi" required><br><br>
+                <label for="updateCategory">Categoría:</label>
+                <input type="text" id="updateCategory" name="category" required><br><br>
+                <button type="button" onclick="actualizarProducto()">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function loadTareas() {
+            fetch('get_task.php')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta de la red');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const tableBody = document.querySelector('#tareasTable tbody');
+                    tableBody.innerHTML = '';
+
+                    if (!data || data.length === 0) {
+                        const row = document.createElement('tr');
+                        const cell = document.createElement('td');
+                        cell.textContent = 'No se encontraron productos';
+                        cell.colSpan = 6;
+                        row.appendChild(cell);
+                        tableBody.appendChild(row);
+                        return;
+                    }
+
+                    data.forEach(producto => {
+                        const row = document.createElement('tr');
+                        row.id = `producto-${producto.id}`;
+
+                        ['nombre', 'consi', 'fecha', 'fragi', 'category'].forEach(field => {
+                            const cell = document.createElement('td');
+                            cell.textContent = producto[field];
+                            row.appendChild(cell);
+                        });
+
+                        const actionCell = document.createElement('td');
+                        const updateButton = document.createElement('button');
+                        updateButton.textContent = 'Editar';
+                        updateButton.className = 'update-button';
+                        updateButton.addEventListener('click', () => openUpdateModal(producto));
+                        actionCell.appendChild(updateButton);
+
+                        // Botón para eliminar
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = 'Eliminar';
+    deleteButton.className = 'delete-button';
+    deleteButton.addEventListener('click', () => eliminarProducto(producto.producto_id)); // Asegúrate de definir esta función
+    actionCell.appendChild(deleteButton);
+
+
+
+
+
+                        row.appendChild(actionCell);
+                        tableBody.appendChild(row);
+                        
+                    });
+                })
+                .catch(error => console.error('Error al cargar los productos:', error));
+        }
+
+        function openUpdateModal(producto) {
+            document.getElementById('updateId').value = producto.producto_id;
+            document.getElementById('updateNombre').value = producto.nombre;
+            document.getElementById('updateConsi').value = producto.consi;
+            document.getElementById('updateFecha').value = producto.fecha;
+            document.getElementById('updateFragi').value = producto.fragi;
+            document.getElementById('updateCategory').value = producto.category;
+            document.getElementById('updateModal').style.display = 'block';
+        }
+
+        function actualizarProducto() {
+    const producto_id = document.getElementById('updateId').value;
+    const nombre = document.getElementById('updateNombre').value.trim();
+    const consi = document.getElementById('updateConsi').value.trim();
+    const fecha = document.getElementById('updateFecha').value;
+    const fragi = document.getElementById('updateFragi').value.trim();
+    const category = document.getElementById('updateCategory').value.trim();
+
+    if (!nombre || !consi || !fecha || !fragi || !category) {
+        alert('Todos los campos son obligatorios.');
+        return;
+    }
+
+    fetch('update_task.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ producto_id, nombre, consi, fecha, fragi, category }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const row = document.querySelector(`#producto-${producto_id}`);
+                if (!row) {
+                    console.error(`No se encontró una fila con ID producto-${producto_id}`);
+                    window.location.reload();
+                    return;
+                }
+                row.children[0].textContent = nombre;
+                row.children[1].textContent = consi;
+                row.children[2].textContent = fecha;
+                row.children[3].textContent = fragi;
+                row.children[4].textContent = category;
+                document.getElementById('updateModal').style.display = 'none';
+            } else {
+                alert('Error al actualizar el producto: ' + (data.error || 'Error desconocido.'));
+            }
+        })
+        .catch(error => console.error('Error al actualizar el producto:', error));
+}
+
+
+        document.querySelector('.close').addEventListener('click', () => {
+            document.getElementById('updateModal').style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === document.getElementById('updateModal')) {
+                document.getElementById('updateModal').style.display = 'none';
+            }
+        });
+
+        window.addEventListener('load', loadTareas);
+
+        function eliminarProducto(producto_id) {
+    // Confirmación de eliminación
+    if (!confirm("¿Estás seguro de que quieres eliminar este producto?")) {
+        return; // Si el usuario cancela, no hacer nada
+    }
+
+    // Datos a enviar al servidor
+    const data = {
+        producto_id: producto_id // Enviar el ID del producto a eliminar
+    };
+
+    // Hacer la solicitud fetch para eliminar el producto
+    fetch('delete_task.php', {
+        method: 'POST', // Usar POST para enviar los datos
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data) // Convertir los datos a formato JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Producto eliminado con éxito.');
+            // Recargar la página o actualizar la tabla después de la eliminación
+            window.location.reload(); // Recargar la página
+        } else {
+            alert('Error al eliminar el producto: ' + (data.error || 'Error desconocido.'));
+        }
+    })
+    .catch(error => {
+        console.error('Error al hacer la solicitud:', error);
+        alert('Hubo un problema al eliminar el producto.');
+    });
+}
+
+
+    </script>
+</body>
+</html>

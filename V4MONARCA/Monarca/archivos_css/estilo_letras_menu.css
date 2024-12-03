@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap');
+
+
+/* Esta clase altera el color de los elementos de navbar*/
+.texto_menu_nav{
+    font-family: "Bodoni Moda", serif;
+    font-size: 20px;
+    color : rgb(255, 255, 255);
+    text-shadow:  0px 0px 15px rgb(169, 255, 194);
+} /*
+color bonito:  rgb(169, 255, 194)*/
+
+/* Esta clase altera el color del background de navbar*/
+.nav_color{
+    background-color: rgb(168, 167, 167) ;
+} 
+
+.color_body{
+    background-color: rgb(212, 212, 212);
+}
+
+.parrafo-con-scroll {
+    max-height: 100px; /* Ajusta esta altura según tus necesidades */
+    overflow-y: scroll;
+}

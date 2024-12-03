@@ -1,0 +1,359 @@
+<?php
+session_start();
+require 'database.php';
+
+// Verifica si el usuario está logueado
+if (isset($_SESSION['user_id'])) {
+    $records = $conn->prepare('SELECT email FROM users WHERE id = :id');
+    $records->bindParam(':id', $_SESSION['user_id']);
+    $records->execute();
+    $results = $records->fetch(PDO::FETCH_ASSOC);
+
+    $user = null;
+
+    if (count($results) > 0) {
+        $user = $results;
+    }
+} else {
+    header('Location: login.php');
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CONDUCTORES</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <!---Mis archivos css-->
+    <link href="archivos_css/estilo_letras_menu.css" rel="stylesheet">
+    <link rel="icon" href="Imagenes/monarca.jpeg" type="imagen/png">
+    <style>
+    body{
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+    }
+    nav {
+    background: linear-gradient(135deg, #126cfe 0%, #c2e9fb 100%);
+}
+
+nav .nav-link {
+    color: green; 
+}
+
+ </style>
+</head>
+
+        <body>
+            <!---Inicio barra de navegacion-->
+            <nav class="navbar navbar-expand-md nav_color">
+                <div class="container-fluid">
+                  <a class="navbar-brand" href="#">Monarca</a>
+                  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                  </button>
+                  <div class="collapse navbar-collapse" id="navbarNav">
+                    
+    
+                    <!---Inicio lista de elementos-->
+                    <ul class="navbar-nav ms-auto">
+    
+                        <li class="nav-item">
+                            <a class="nav-link mx-3 mt-3 texto_menu_nav" href="inicio.php">Inicio</a>
+                        </li>
+                        
+                        <li class="nav-item">
+                            <a class="nav-link mx-3 mt-3 texto_menu_nav" href="telas.php">Telas</a>
+                        </li>
+    
+    
+                        <li class="nav-item">
+                            <a class="nav-link mx-3 mt-3 texto_menu_nav" href="Papel.php">papel</a>
+                        </li>
+    
+                        <li class="nav-item">
+                            <a class="nav-link mx-3 mt-3 texto_menu_nav" href="Metal.php">Metal</a>
+                        </li>
+    
+                        
+    
+    
+                        <ul class="navbar-nav ms-auto">
+    <?php if (!empty($user)): ?>
+        <li class="nav-item">
+            <span class="nav-link mx-3 texto_menu_nav">Bienvenido, <?= $user['email']; ?></span>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link mx-3 texto_menu_nav" href="logout.php">Cerrar sesión</a>
+        </li>
+    <?php else: ?>
+        <li class="nav-item">
+            <a class="nav-link mx-3 texto_menu_nav" href="login.php">Iniciar sesión</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link mx-3 texto_menu_nav" href="signup.php">Registrarse</a>
+        </li>
+    <?php endif; ?>
+</ul>
+
+    
+
+<li class="nav-item">
+    <a class="nav-link texto_menu_nav" href="producto.php">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-handbag" viewBox="0 0 16 16">
+            <path d="M8 1a2 2 0 0 1 2 2v2H6V3a2 2 0 0 1 2-2m3 4V3a3 3 0 1 0-6 0v2H3.36a1.5 1.5 0 0 0-1.483 1.277L.85 13.13A2.5 2.5 0 0 0 3.322 16h9.355a2.5 2.5 0 0 0 2.473-2.87l-1.028-6.853A1.5 1.5 0 0 0 12.64 5zm-1 1v1.5a.5.5 0 0 0 1 0V6h1.639a.5.5 0 0 1 .494.426l1.028 6.851A1.5 1.5 0 0 1 12.678 15H3.322a1.5 1.5 0 0 1-1.483-1.723l1.028-6.851A.5.5 0 0 1 3.36 6H5v1.5a.5.5 0 1 0 1 0V6z"/>
+        </svg>
+    </a>
+</li>
+    
+    
+                    </ul>
+    
+                    <!---Final lista elementos-->
+    
+                  </div>
+                </div>
+              </nav>
+        <!---Final barra de navegacion-->
+
+
+
+
+
+        <div class="conteiner text-center mt-5">
+    <h1>Productos de Plástico Reciclado</h1>
+</div>
+
+<div class="conteiner mt-5 mb-5 mx-5">
+    <div class="row">
+
+        <!-- Producto 1 -->
+        <div class="col-4">
+            <div class="card border border-1 border-black" style="width: 18rem">
+                <img src="imagenes\plastico1.png" class="card-img-top" alt="Bloques de construcción reciclados">
+                <div class="card-body">
+                <div>
+    <strong>Descripción del Producto: Plástico HDPE (Polietileno de Alta Densidad)</strong>
+    
+    <p><strong>Características:</strong></p>
+    <p>El plástico HDPE (Polietileno de Alta Densidad) es un material versátil y duradero, ideal para una amplia gama de aplicaciones. Su estructura de alta densidad le confiere una excelente resistencia a impactos, productos químicos y temperaturas extremas.</p>
+    
+    <p><strong>Beneficios:</strong></p>
+    <ul>
+        <li><strong>Resistente y Duradero:</strong> Ideal para uso tanto en interiores como en exteriores.</li>
+        <li><strong>Ligero y Flexible:</strong> Facilita el manejo y transporte.</li>
+        <li><strong>Resistencia Química:</strong> Perfecto para almacenar productos químicos y líquidos sin riesgo de filtraciones.</li>
+        <li><strong>Fácil de Limpiar:</strong> Superficie lisa que permite una limpieza sencilla y rápida.</li>
+        <li><strong>Ecológico:</strong> Reciclable y fabricado a partir de materiales reciclados, contribuyendo a la sostenibilidad.</li>
+    </ul>
+
+    <p><strong>Usos Comunes:</strong></p>
+    <ul>
+        <li>Fabricación de envases y botellas.</li>
+        <li>Construcción de estructuras y muebles.</li>
+        <li>Aplicaciones industriales y comerciales.</li>
+        <li>Uso agrícola, como tuberías y contenedores.</li>
+    </ul>
+
+    <p><strong>Especificaciones:</strong></p>
+    <ul>
+        <li><strong>Color:</strong> [Especificar color disponible]</li>
+        <li><strong>Grosor:</strong> [Especificar grosor]</li>
+        <li><strong>Dimensiones:</strong> [Especificar dimensiones]</li>
+    </ul>
+
+    <p>Transforma tus proyectos con la resistencia y versatilidad del plástico HDPE. ¡Haz tu pedido hoy y descubre todas las posibilidades!</p>
+</div>
+
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        Precio:<p>850.00</p>
+                    </li>
+                    <li class="list-group-item">
+                        Unidades Disponibles:<p>100</p>
+                    </li>
+                </ul>
+                <div class="card-body">
+                <form id="plastico1" method="post">
+  <button type="submit" class="btn btn-primary" >Añadir al carrito</button>
+</form>
+                    
+                </div>
+            </div>
+        </div>
+        <script>
+  // Agregar un evento al formulario para manejar el submit con AJAX
+  document.getElementById("plastico1").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevenir que el formulario recargue la página
+
+    // Usar Fetch para enviar datos al archivo PHP
+    fetch("add_plasticohdpe.php", {
+      method: "POST", // Usamos POST para enviar datos
+      body: new FormData(this) // Enviar los datos del formulario
+    })
+    .then(response => response.text()) // Procesar la respuesta del servidor
+    .then(data => {
+      console.log("Respuesta del servidor:", data);
+      // Mostrar mensaje emergente
+      alert("Producto añadido al carrito"); // Mensaje emergente
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+  });
+</script>
+
+        <!-- Producto 2 -->
+        <div class="col-4">
+            <div class="card border border-1 border-black" style="width: 18rem;">
+                <img src="imagenes\plastico2.png" class="card-img-top" alt="Maceta ecológica">
+                <div class="card-body">
+                <strong>Descripción del Producto: Plástico PS (Poliestireno)</strong>
+
+<p><strong>Características:</strong></p>
+<p>El plástico PS (Poliestireno) es un material ligero, económico y versátil, ampliamente utilizado en aplicaciones de embalaje y productos desechables. Su estructura le proporciona rigidez y facilidad para el moldeado en diversas formas y tamaños.</p>
+
+<p><strong>Beneficios:</strong></p>
+<ul>
+    <li><strong>Ligero y Rígido:</strong> Ideal para aplicaciones que requieren una estructura rígida pero de poco peso.</li>
+    <li><strong>Versátil y Moldeable:</strong> Fácil de moldear en diferentes formas y tamaños, adaptándose a múltiples necesidades.</li>
+    <li><strong>Aislante Térmico:</strong> Su baja conductividad térmica lo convierte en un excelente aislante, comúnmente utilizado en envases para alimentos calientes y fríos.</li>
+    <li><strong>Color Personalizable:</strong> Puede fabricarse en una variedad de colores para adaptarse a la imagen de marca o diseño deseado.</li>
+    <li><strong>Costo Accesible:</strong> Es una opción económica, ideal para productos desechables y de un solo uso.</li>
+</ul>
+
+<p><strong>Usos Comunes:</strong></p>
+<ul>
+    <li>Fabricación de envases desechables para alimentos y bebidas.</li>
+    <li>Producción de bandejas, vasos, y recipientes de un solo uso.</li>
+    <li>Aislamiento térmico en construcción y embalajes.</li>
+    <li>Artículos decorativos y piezas de exhibición.</li>
+</ul>
+
+<p><strong>Especificaciones:</strong></p>
+<ul>
+    <li><strong>Color:</strong> [Especificar color disponible]</li>
+    <li><strong>Grosor:</strong> [Especificar grosor]</li>
+    <li><strong>Dimensiones:</strong> [Especificar dimensiones]</li>
+</ul>
+
+<p>Descubre la practicidad y versatilidad del plástico PS en tus proyectos. ¡Haz tu pedido hoy y aprovecha todas sus ventajas!</p>
+
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        Precio:<p>120.00</p>
+                    </li>
+                    <li class="list-group-item">
+                        Unidades Disponibles:<p>200</p>
+                    </li>
+                </ul>
+                <div class="card-body">
+                <form id="plastico2" method="post">
+  <button type="submit" class="btn btn-primary" >Añadir al carrito</button>
+</form>
+                    
+                </div>
+            </div>
+        </div>
+        <script>
+  // Agregar un evento al formulario para manejar el submit con AJAX
+  document.getElementById("plastico2").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevenir que el formulario recargue la página
+
+    // Usar Fetch para enviar datos al archivo PHP
+    fetch("add_plastico2.php", {
+      method: "POST", // Usamos POST para enviar datos
+      body: new FormData(this) // Enviar los datos del formulario
+    })
+    .then(response => response.text()) // Procesar la respuesta del servidor
+    .then(data => {
+      console.log("Respuesta del servidor:", data);
+      // Mostrar mensaje emergente
+      alert("Producto añadido al carrito"); // Mensaje emergente
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+  });
+</script>
+
+
+        <!-- Producto 3 -->
+        <div class="col-4">
+            <div class="card border border-1 border-black" style="width: 18rem;">
+                <img src="imagenes\bopla.jpg" class="card-img-top" alt="Botella reutilizable de plástico reciclado">
+                <div class="card-body">
+                <strong>Descripción del Producto: Plástico PET (Polietileno Tereftalato)</strong>
+
+<p><strong>Características:</strong></p>
+<p>El plástico PET (Polietileno Tereftalato) es un material resistente, ligero y de alta transparencia, utilizado ampliamente en la industria de envases y embalajes. Su estructura química le brinda una excelente barrera contra gases y humedad, y es completamente reciclable.</p>
+
+<p><strong>Beneficios:</strong></p>
+<ul>
+    <li><strong>Alta Transparencia:</strong> Ideal para productos que requieren visibilidad.</li>
+    <li><strong>Resistencia a Impactos:</strong> Soporta golpes sin fracturarse, perfecto para envases y embalajes seguros.</li>
+    <li><strong>Barrera Eficiente:</strong> Protege contra la humedad y el oxígeno, manteniendo la frescura de los productos.</li>
+    <li><strong>Ligero y Reciclable:</strong> Facilita el transporte y es totalmente reciclable, contribuyendo a la sostenibilidad.</li>
+    <li><strong>Seguro para Alimentos:</strong> Aprobado para uso en contacto directo con alimentos y bebidas.</li>
+</ul>
+
+<p><strong>Usos Comunes:</strong></p>
+<ul>
+    <li>Fabricación de botellas para bebidas y productos alimenticios.</li>
+    <li>Envases y empaques transparentes para diversas industrias.</li>
+    <li>Producción de fibras y textiles reciclados.</li>
+    <li>Aplicaciones en la industria farmacéutica y cosmética.</li>
+</ul>
+
+<p><strong>Especificaciones:</strong></p>
+<ul>
+    <li><strong>Color:</strong> [Especificar color disponible]</li>
+    <li><strong>Grosor:</strong> [Especificar grosor]</li>
+    <li><strong>Dimensiones:</strong> [Especificar dimensiones]</li>
+</ul>
+
+<p>Elige el plástico PET para una solución confiable, versátil y sostenible. ¡Haz tu pedido hoy y aprovecha todos sus beneficios!</p>
+
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                        Precio:<p>150.00</p>
+                    </li>
+                    <li class="list-group-item">
+                        Unidades Disponibles:<p>150</p>
+                    </li>
+                </ul>
+                <div class="card-body">
+                <form id="plastico3" method="post">
+  <button type="submit" class="btn btn-primary" >Añadir al carrito</button>
+</form>
+                    
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+  // Agregar un evento al formulario para manejar el submit con AJAX
+  document.getElementById("plastico3").addEventListener("submit", function(event) {
+    event.preventDefault(); // Prevenir que el formulario recargue la página
+
+    // Usar Fetch para enviar datos al archivo PHP
+    fetch("add_plastico3.php", {
+      method: "POST", // Usamos POST para enviar datos
+      body: new FormData(this) // Enviar los datos del formulario
+    })
+    .then(response => response.text()) // Procesar la respuesta del servidor
+    .then(data => {
+      console.log("Respuesta del servidor:", data);
+      // Mostrar mensaje emergente
+      alert("Producto añadido al carrito"); // Mensaje emergente
+    })
+    .catch(error => {
+      console.error("Error:", error);
+    });
+  });
+</script>
